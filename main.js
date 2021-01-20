@@ -147,6 +147,6 @@ const loadCity = async(countryName, provinceName, cityName) => {
 
 
 // 执行
-// server.cleanAll().then(download("中国"))
-server.clean('中国', '山东省', '青岛市').then(loadCity('中国', '山东省', '青岛市'))
+server.cleanAll().then(download("中国"))
+// server.clean('中国', '山东省', '青岛市').then(loadCity('中国', '山东省', '青岛市'))
 
