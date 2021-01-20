@@ -19,7 +19,7 @@ function getConnection(){
  */
 const clean = async() => {
 
-  let sql = 'DELETE FROM t_global_ip'
+  let sql = 'DELETE FROM t_ip_address'
   let params = []
 
   return new Promise((resolve, reject) => {
@@ -47,7 +47,7 @@ const clean = async() => {
  * @param connection 数据库连接
  */
 const saveOne = async(id, ip, connection) => {
-  let sql = 'INSERT INTO t_global_ip(id, country_name, province_name, city_name, start_str, end_str, start_num, end_num, description) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)'
+  let sql = 'INSERT INTO t_ip_address(id, country_name, province_name, city_name, start_str, end_str, start_num, end_num, description) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)'
   let params = [id, ip.countryName, ip.provinceName, ip.cityName, ip.start, ip.end, toNumber(ip.start), toNumber(ip.end), ip.description]
 
   return new Promise((resolve, reject) => {
