@@ -4,7 +4,7 @@ var http = require('./http')
 var server = require('./server')
 var tool = require('./tool')
 
-const download = async() => {
+const download = async(countryName) => {
   
   const loadProvinceNames = async () => {
     let url = 'http://ip.yqie.com/china.aspx'
@@ -24,14 +24,14 @@ const download = async() => {
    }
 
 
-  console.log('============== start ==============')
+  console.group(countryName)
   let provinceNames = await loadProvinceNames()
 
   for(let i = 0; i < provinceNames.length; i++) {
-    await loadProvince(provinceNames[i])
+    await loadProvince(countryName, provinceNames[i])
     await tool.sleep(20000)
   }
-  console.log('============== end ==============')
+  console.groupEnd()
   // end
 }
 
@@ -39,7 +39,7 @@ const download = async() => {
  * 加载省份IP地址
  * @param provinceName 省份名称
  */
-const loadProvince = async(provinceName) => {
+const loadProvince = async(countryName, provinceName) => {
 
   const loadCityNames = async (name) => {
     let url = 'http://ip.yqie.com/china.aspx'
@@ -58,6 +58,7 @@ const loadProvince = async(provinceName) => {
           let cityNames = []
           for(let j = 0; j < array.length; j++) {
             let cityName = $(array[j]).text()
+            cityName = tool.removeBrackets(cityName)
             cityNames[cityNames.length] = cityName
           }  // end city for
 
@@ -70,8 +71,9 @@ const loadProvince = async(provinceName) => {
 
    console.group(provinceName)
    let cityNames = await loadCityNames(provinceName)
+   let cityPrefix
    for(let i = 0; i < cityNames.length; i++) {
-     await loadCity(provinceName, cityNames[i])
+     await loadCity(countryName, provinceName, cityNames[i])
      tool.sleep(5000)
    }
    console.groupEnd()
@@ -82,7 +84,7 @@ const loadProvince = async(provinceName) => {
  * @param provinceName 省份名称
  * @param cityName 城市名称
  */
-const loadCity = async(provinceName, cityName) => {
+const loadCity = async(countryName, provinceName, cityName) => {
 
   let pageSize = 100
   let count = 0
@@ -109,6 +111,9 @@ const loadCity = async(provinceName, cityName) => {
           let end = $(datas[1]).html()
           let description = $(datas[2]).html()
           results[results.length] = {
+            countryName: countryName,
+            provinceName: provinceName,
+            cityName: cityName,
             start: start,
             end: end,
             description: description
@@ -123,31 +128,24 @@ const loadCity = async(provinceName, cityName) => {
   let datas = []
   console.group(cityName)
   while(true) {
-    console.log(`loading page ${pageNo}`)
+    console.log(`loading page ${pageNo} in ${count}`)
     // load
     let ips = await load(cityName, pageNo)
-    // save
-    server.save(provinceName, cityName, ips)
+    tool.array.addAll(ips, datas)
     // sleep
     await tool.sleep(300)
 
-    console.log(count)
     if(pageNo * pageSize >= count) {
       break
     }
     pageNo++
 
   }
+  server.save(datas)
   console.groupEnd()
 }
 
+
 // 执行
-// loadCity("山东", "青岛市")
-// loadProvince("山东")
-server.clean().then(download)
-
-
-
-
-
+server.clean().then(download("中国"))
 

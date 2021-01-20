@@ -11,20 +11,47 @@ function getConnection(){
     user     : global.config.mysql.username,
     password : global.config.mysql.password,
     database : global.config.mysql.database
-  });
+  })
 }
 
 /**
  * 清空
  */
-function clean() {
-  return new Promise((resolve, reject) => {
-     let connection = getConnection()
-     connection.connect()
+const clean = async() => {
 
-     let sql = 'DELETE FROM t_global_ip'
-     let params = []
-     connection.query(sql, params, function(err, result) {
+  let sql = 'DELETE FROM t_global_ip'
+  let params = []
+
+  return new Promise((resolve, reject) => {
+    let connection = getConnection()
+    connection.connect()
+    connection.query(sql, params, function(err, result) {
+      connection.end()
+
+      if(err) {
+        reject(err)
+        return
+      }
+
+      resolve(result)
+    })
+   })
+     
+}     
+
+
+/**
+ * 保存一条IP数据
+ * @param id 数据的ID
+ * @param ip IP信息
+ * @param connection 数据库连接
+ */
+const saveOne = async(id, ip, connection) => {
+  let sql = 'INSERT INTO t_global_ip(id, country_name, province_name, city_name, start_str, end_str, start_num, end_num, description) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)'
+  let params = [id, ip.countryName, ip.provinceName, ip.cityName, ip.start, ip.end, toNumber(ip.start), toNumber(ip.end), ip.description]
+
+  return new Promise((resolve, reject) => {
+    connection.query(sql, params, function(err, result) {
         if(err) {
           reject(err)
           return
@@ -32,36 +59,36 @@ function clean() {
 
         resolve(result)
      })
-   })
-     
-}     
+  })
+}
+
 
 /**
  * 保存IP地址
- * @param provinceName 省份名称
- * @param cityName 城市名称
  * @param ips IP地址
  */
-function save(provinceName, cityName, ips) {
-  return new Promise((resolve, reject) => {
-     let connection = getConnection()
-     connection.connect()
+const save = async(ips) => {
 
-     let sql = 'INSERT INTO t_global_ip(province_name, city_name, start_str, end_str, start_num, end_num, description) VALUES(?, ?, ?, ?, ?, ?, ?)'
-     for(let i = 0; i < ips.length; i++) {
-       let ip = ips[i]
-       let params = [provinceName, cityName, ip.start, ip.end, toNumber(ip.start), toNumber(ip.end), ip.description]
-       connection.query(sql, params, function(err, result) {
-          if(err) {
-            reject(err)
-            return
-          }
+  if(ips.length == 0) {
+    return
+  }
 
-          resolve(result)
-       })
-     }
-     
-  })
+  // 前缀
+  let prefix = ips[0].countryName + "_" + ips[0].provinceName + "_" + ips[0].cityName
+
+  // 连接
+  let connection = getConnection()
+  connection.connect()
+
+  let id
+  let ip
+  for(let i = 0; i < ips.length; i++) {
+    id = prefix + tool.leftPad((i + 1).toString(), 3, '0')
+    ip = ips[i]
+    await saveOne(id, ip, connection)
+  }
+   
+   connection.end()
 
 }
 
@@ -81,6 +108,5 @@ module.exports = {
 
 
 
-save('山东', '青岛市', [{"start": "10.1.91.0", "end": "10.1.91.255", "description": "山东青岛"}])
-.then(console.log)
+
 

@@ -70,10 +70,33 @@ const rightPad = function(str, len, padding) {
   return result
 }
 
+/**
+ * 移除掉括号
+ * @param str
+ * @return 移除掉括号后的字符串
+ */
+const removeBrackets = function(str){
+  let index = -1
+
+  if(index == -1) {
+    index = str.indexOf('(')
+  }
+  if(index == -1) {
+    index = str.indexOf('（')
+  }
+
+  if(index== -1) {
+    return str
+  }
+
+  return str.substring(0, index)
+}
+
 module.exports = {
   sleep: sleep,
   array: array,
   leftPad: leftPad,
-  rightPad: rightPad
+  rightPad: rightPad,
+  removeBrackets: removeBrackets
 }
 
