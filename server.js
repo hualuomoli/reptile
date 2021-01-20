@@ -15,11 +15,14 @@ function getConnection(){
 }
 
 /**
- * 清空
+ * 删除指定的数据
+ * @param countryName 国家
+ * @param provinceName 省
+ * @param cityName
  */
-const clean = async() => {
+const clean = async(countryName, provinceName, cityName = '%') => {
 
-  let sql = 'DELETE FROM t_ip_address'
+  let sql = `DELETE FROM t_ip_address where id like '${countryName}_${provinceName}_${cityName}_%'`
   let params = []
 
   return new Promise((resolve, reject) => {
@@ -39,6 +42,30 @@ const clean = async() => {
      
 }     
 
+/**
+ * 清空全部
+ */
+const cleanAll = async() => {
+
+  let sql = 'DELETE FROM t_ip_address'
+  let params = []
+
+  return new Promise((resolve, reject) => {
+    let connection = getConnection()
+    connection.connect()
+    connection.query(sql, params, function(err, result) {
+      connection.end()
+
+      if(err) {
+        reject(err)
+        return
+      }
+
+      resolve(result)
+    })
+   })
+     
+}  
 
 /**
  * 保存一条IP数据
@@ -103,7 +130,8 @@ function toNumber(ip) {
 
 module.exports = {
   save: save,
-  clean: clean
+  clean: clean,
+  cleanAll: cleanAll
 }
 
 

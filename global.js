@@ -6,6 +6,10 @@ const config = {
     username: 'root',
     password: '123456',
     database: 'reptile'
+  },
+  proxy: {
+    enable: true,
+    url: 'http://112.80.124.124:8908'
   }
 }
 
