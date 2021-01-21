@@ -8,8 +8,8 @@ const config = {
     database: 'reptile'
   },
   proxy: {
-    enable: true,
-    url: 'http://112.80.124.124:8908'
+    enable: false,
+    url: 'http://110.178.219.201:8118'
   }
 }
 

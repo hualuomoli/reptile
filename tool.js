@@ -23,6 +23,10 @@ const array = {
       target[target.length] = origin[i]
     }
     return target
+  },
+  add: function(obj, target) {
+    target[target.length] = obj
+    return target
   }
 }
 
