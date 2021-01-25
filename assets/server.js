@@ -20,7 +20,7 @@ function getConnection(){
  * @param provinceName 省
  * @param cityName 地市
  */
-const clean = async(countryName, provinceName = '%', cityName = '%') => {
+const clean = async(countryName, provinceName, cityName) => {
 
   let sql = `DELETE FROM t_ip_address where id like '${countryName}_${provinceName}_${cityName}_%'`
   let params = []

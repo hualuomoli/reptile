@@ -54,6 +54,7 @@ loadAddresses()
 
   console.log(`
 const handle = async(countryName, provinceName, cityName, cityUrl) => {
+  await server.clean(countryName, provinceName, cityName)
   let ips = await parser.load(cityName, cityUrl)
   let ip
   for(let  i = 0; i < ips.length; i++) {
@@ -76,7 +77,6 @@ const handle = async(countryName, provinceName, cityName, cityUrl) => {
 
     console.log(`\n`)
     console.log(`// ${provinceName}`)
-    console.log(`// await server.clean('${countryName}', '${provinceName}')`)
 
     // city
     for(j = 0; j < cities.length; j++) {

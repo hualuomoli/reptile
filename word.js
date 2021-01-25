@@ -54,14 +54,14 @@ loadAddresses()
 
   console.log(`
 const handle = async(name, url) => {
-  await server.clean(name)
+  await server.clean(name, '/', '/')
   let ips = await parser.load(name, url)
   let ip
   for(let  i = 0; i < ips.length; i++) {
     ip = ips[i]
     ip.countryName = name
-    ip.provinceName = '_'
-    ip.cityName = '_'
+    ip.provinceName = '/'
+    ip.cityName = '/'
   }
   await server.save(ips)
 }
