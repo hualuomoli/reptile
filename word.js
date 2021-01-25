@@ -69,7 +69,6 @@ const handle = async(name, url) => {
 
   console.log(`const main = async() => {\n`)
 
-  const countryName = '中国'
   // province
   for(let i = 0; i < continents.length; i++) {
     let continentName = continents[i].continentName
