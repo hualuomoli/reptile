@@ -18,9 +18,9 @@ function getConnection(){
  * 删除指定的数据
  * @param countryName 国家
  * @param provinceName 省
- * @param cityName
+ * @param cityName 地市
  */
-const clean = async(countryName, provinceName, cityName = '%') => {
+const clean = async(countryName, provinceName = '%', cityName = '%') => {
 
   let sql = `DELETE FROM t_ip_address where id like '${countryName}_${provinceName}_${cityName}_%'`
   let params = []

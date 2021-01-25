@@ -37,7 +37,7 @@ const loadAddresses = async() => {
           tool.array.add(city, cities)
         }  // end city for
 
-        provinces[provinces.length] = province
+        tool.array.add(province, provinces)
       }
 
       return provinces
@@ -66,7 +66,7 @@ const handle = async(countryName, provinceName, cityName, cityUrl) => {
 }
   `)
 
-   console.log(`const main = async() => {\n`)
+  console.log(`const main = async() => {\n`)
 
   const countryName = '中国'
   // province
