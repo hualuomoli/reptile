@@ -110,7 +110,7 @@ const handle = async(name, url) => {
     
   }
 
-  console.log(`console.log('end.')`)
+  console.log(`\nconsole.log('end.')`)
   console.log(`\n\n}\n\n`)
   console.log(`main()`)
   console.log(`\n\n`)
