@@ -69,15 +69,36 @@ const handle = async(name, url) => {
 
   console.log(`const main = async() => {\n`)
 
-  // province
+  const pageNo = 1
+  const pageSize = 10
+  const start = (pageNo - 1) * pageSize + 1
+  const end = pageNo * pageSize
+  let index = 0
+
+  // continent
+  outer:
   for(let i = 0; i < continents.length; i++) {
     let continentName = continents[i].continentName
     let countries = continents[i].countries
 
     console.log(`\n`)
-    console.log(`// ${continentName}`)
+    console.log(`console.log('${continentName}')`)
+
     // country
     for(j = 0; j < countries.length; j++) {
+
+      index++
+
+      // from
+      if(index < start) {
+        continue
+      }
+
+      // to
+      if(index > end) {
+        break outer
+      }
+
       let name = countries[j].countryName
       let url = countries[j].url
       console.log(`// await handle('${name}', '${url}')`)

@@ -70,19 +70,42 @@ const handle = async(countryName, provinceName, cityName, cityUrl) => {
   console.log(`const main = async() => {\n`)
 
   const countryName = '中国'
+
+  const pageNo = 1
+  const pageSize = 10
+  const start = (pageNo - 1) * pageSize + 1
+  const end = pageNo * pageSize
+  let index = 0
+
   // province
+  outer:
   for(let i = 0; i < provinces.length; i++) {
     let provinceName = provinces[i].provinceName
     let cities = provinces[i].cities
 
     console.log(`\n`)
-    console.log(`// ${provinceName}`)
+    console.log(`console.log('${provinceName}')`)
 
     // city
     for(j = 0; j < cities.length; j++) {
+      index++
+
+      // from
+      if(index < start) {
+        continue
+      }
+
+      // to
+      if(index > end) {
+        break outer
+      }
+
       let cityName = cities[j].cityName
       let cityUrl = cities[j].url
-      console.log(`// await handle('${countryName}', '${provinceName}', '${cityName}', '${cityUrl}')`)
+      console.log(`await handle('${countryName}', '${provinceName}', '${cityName}', '${cityUrl}')`)
+      
+      
+
     }
 
     
