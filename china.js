@@ -76,6 +76,7 @@ const handle = async(countryName, provinceName, cityName, cityUrl) => {
   const start = (pageNo - 1) * pageSize + 1
   const end = pageNo * pageSize
   let index = 0
+  let len = 0
 
   // province
   outer:
@@ -99,6 +100,8 @@ const handle = async(countryName, provinceName, cityName, cityUrl) => {
       if(index > end) {
         break outer
       }
+
+      console.log(`console.log(\`start: ${start}, len: ${++len}\`)`)
 
       let cityName = cities[j].cityName
       let cityUrl = cities[j].url

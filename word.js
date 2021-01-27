@@ -74,6 +74,7 @@ const handle = async(name, url) => {
   const start = (pageNo - 1) * pageSize + 1
   const end = pageNo * pageSize
   let index = 0
+  let len = 0
 
   // continent
   outer:
@@ -99,6 +100,7 @@ const handle = async(name, url) => {
         break outer
       }
 
+      console.log(`console.log(\`start: ${start}, len: ${++len}\`)`)
       let name = countries[j].countryName
       let url = countries[j].url
       console.log(`// await handle('${name}', '${url}')`)
