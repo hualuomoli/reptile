@@ -121,8 +121,9 @@ const load = async(name, url) => {
 
   // 如果总数量大于最大数量，根据名称加载
   if(ips.length == 0 || ips.length >= URL_MAX_COUNT) {
-    console.log(`load by name ${name}`)
+    console.group(`load by name ${name}`)
     ips = await loadByName(name)
+    console.groupEnd()
   }
 
   return ips
