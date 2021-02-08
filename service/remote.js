@@ -1,9 +1,25 @@
-var request = require('request')
-var mysql = require('mysql')
+const request = require('request')
+const mysql   = require('mysql')
 
-var tool = require('./tool')
-var global = require('./global')
+const tool = require('./tool')
 
+
+// config
+let config = {
+  host: '',
+  username: '',
+  password: '',
+  database: ''
+}
+
+/**
+ * 初始化
+ * @param cookie 会话Cookie
+ * @param encoding 编码集
+ */
+function init(cookie, encoding = 'UTF-8') {
+  config = _.extend({}, {cookie: cookie, encoding: encoding})
+}
 
 function getConnection(){
   return mysql.createConnection({

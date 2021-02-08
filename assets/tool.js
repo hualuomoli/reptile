@@ -13,28 +13,11 @@ const sleep = async(millis = 1000) => {
   })
 }
 
-const array = {
-  addAll: function(origin, target) {
-    if(origin.length == 0) {
-      return target
-    }
-
-    for(let i = 0; i < origin.length; i++) {
-      target[target.length] = origin[i]
-    }
-    return target
-  },
-  add: function(obj, target) {
-    target[target.length] = obj
-    return target
-  }
-}
-
 /**
  * 左填充
  * @param str 被填充的字符串
  * @param len 总长度
- * @param padding 天聪字符
+ * @param padding 填充字符
  * @result 填充后的字符
  */
 const leftPad = function(str, len, padding) {
@@ -56,7 +39,7 @@ const leftPad = function(str, len, padding) {
  * 右填充
  * @param str 被填充的字符串
  * @param len 总长度
- * @param padding 天聪字符
+ * @param padding 填充字符
  * @result 填充后的字符
  */
 const rightPad = function(str, len, padding) {
@@ -74,33 +57,9 @@ const rightPad = function(str, len, padding) {
   return result
 }
 
-/**
- * 移除掉括号
- * @param str
- * @return 移除掉括号后的字符串
- */
-const removeBrackets = function(str){
-  let index = -1
-
-  if(index == -1) {
-    index = str.indexOf('(')
-  }
-  if(index == -1) {
-    index = str.indexOf('（')
-  }
-
-  if(index== -1) {
-    return str
-  }
-
-  return str.substring(0, index)
-}
-
 module.exports = {
   sleep: sleep,
-  array: array,
   leftPad: leftPad,
-  rightPad: rightPad,
-  removeBrackets: removeBrackets
+  rightPad: rightPad
 }
 

@@ -1,4 +1,4 @@
-const request = require('request')
+var child_process = require("child_process")
 const iconv   = require('iconv-lite')
 const _       = require('lodash')
 
@@ -24,30 +24,18 @@ function init(cookie, encoding = 'UTF-8') {
  * @param timeout 超时时间
  * @return 网页内容
  */
-const get = async(url, options = {}) => {
-
-  const OPTIONS = {
-    url: url,
-    method: 'GET',
-    encoding: null,
-    headers: {
-      Cookie: config.cookie
-    }
-  }
+const get = async(url) => {
+  const command = `curl -X GET --header 'Cookie:${config.cookie}' --header 'ACCPET:test/html;charset=${config.encoding}' ${url}`
+  const options = {'maxBuffer': 100 * 1024 * 1024}
 
   return new Promise((resolve, reject) => {
-    request(_.extend({}, OPTIONS, options), (err, res, body) => {
+    child_process.exec(command, options, (err, stdout, stderr) => {
       if(err) {
         reject(err)
         return
       }
 
-      if(res.statusCode != 200) {
-        reject(`[${res.statusCode}] ${res.statusMessage}`)
-        return
-      }
-
-       resolve(iconv.decode(body, config.encoding).toString())
+      resolve(stdout.toString(config.encoding))
     })
   })
 }
@@ -57,5 +45,3 @@ module.exports = {
   init: init,
   get: get
 }
-
-
