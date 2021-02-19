@@ -3,5 +3,6 @@
 /tmp
 /tmp.html
 /tmp.js
+/.*.tmp
 /*.tar.gz
 /*.tar
