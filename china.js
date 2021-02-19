@@ -1,9 +1,16 @@
-var cheerio = require('cheerio')
-var _ = require('lodash')
+const fs      = require('fs')
+const path    = require('path')
+const cheerio = require('cheerio')
+const _       = require('lodash')
 
-var http = require('./assets/http')
-var server = require('./assets/server')
-var tool = require('./assets/tool')
+const http   = require('./assets/http')
+const curl   = require('./assets/curl')
+const tool   = require('./assets/tool')
+const logger = require('./assets/logger')
+const parser = require('./service/parser')
+
+const filename = '.china.tmp'
+const cookie_filename = '.cookie.tmp'
 
 /**
  * 加载所有的地址信息
@@ -20,106 +27,174 @@ const loadAddresses = async() => {
       let lines = $('#page .menucity')
       for(let i = 1; i < lines.length; i++) {
         let provinceName = $(lines[i]).find('a').html()
-
-
         let array = $(lines[i]).find('li a')
 
         let cities = []
-        let province = {provinceName: provinceName, cities: cities}
-
         // add city
         for(let j = 0; j < array.length; j++) {
           let url = $(array[j]).attr('href')
           let cityName = $(array[j]).text()
-          cityName = tool.removeBrackets(cityName)
+          // cityName = tool.removeBrackets(cityName)
 
-          let city = {cityName: cityName, url: 'http://ip.yqie.com' + url}
-          tool.array.add(city, cities)
+          cities.push({
+            cityName: cityName,
+            url: 'http://ip.yqie.com' + url
+          })
+
         }  // end city for
 
-        tool.array.add(province, provinces)
+        provinces.push({
+          provinceName: provinceName,
+          cities: cities
+        })
       }
 
       return provinces
     })
 }
 
-// 执行
-loadAddresses()
-.then(provinces => {
-  
-  console.log(`var server = require('./assets/server')`)
-  console.log(`var parser = require('./assets/parser')`)
-  console.log(`\n`)
+// 暂停
+const pause = async(provinceName, cityName, message = '') => {
+  return new Promise((resolve, reject) => {
+    let file = path.resolve(__dirname, filename)
+    let content = JSON.stringify({provinceName: provinceName, cityName: cityName, message: message})
+    let options = {encoding: 'UTF-8'}
+    
+    fs.writeFile(file, content, options, err => {
+      
+      // error
+      if(err) {
+        reject(err)
+        return
+      }
 
-  console.log(`
-const handle = async(countryName, provinceName, cityName, cityUrl) => {
-  await server.clean(countryName, provinceName, cityName)
-  let ips = await parser.load(cityName, cityUrl)
-  let ip
-  for(let  i = 0; i < ips.length; i++) {
-    ip = ips[i]
-    ip.countryName = countryName
-    ip.provinceName = provinceName
-    ip.cityName = cityName
-  }
-  await server.save(ips)
+      // success
+      resolve()
+    })
+  }) // end promise
 }
-  `)
 
-  console.log(`const main = async() => {\n`)
+// 继续
+const resume = async() => {
+  return new Promise((resolve, reject) => {
+    let file = path.resolve(__dirname, filename)
 
-  const countryName = '中国'
+    fs.readFile(file, 'UTF-8', (err, data) => {
+      
+      // error
+      if(err) {
+        reject(err)
+        return
+      }
 
-  const pageNo = 1
-  const pageSize = 10
-  const start = (pageNo - 1) * pageSize + 1
-  const end = pageNo * pageSize
-  let index = 0
-  let len = 0
+      // success
+      resolve(JSON.parse(data))
+    })
+  }) // end promise
+}
 
-  // province
+// 初始化
+const init = async() => {
+  return new Promise((resolve, reject) => {
+    let file = path.resolve(__dirname, cookie_filename)
+
+    fs.readFile(file, 'UTF-8', (err, cookie) => {
+      
+      // error
+      if(err) {
+        reject(err)
+        return
+      }
+
+      http.init(cookie)
+      curl.init(cookie)
+
+      // success
+      resolve(cookie)
+    })
+  }) // end promise
+}
+
+// 处理
+const handle = async(provinceName, city) => {
+
+  return parser.load(city.cityName, city.url)
+    .then(datas => {
+
+      // save
+      logger.info(`${city.cityName} ip count ${datas.length}`)
+
+      return {
+        success: true,
+        datas: datas
+      }
+    })
+    .catch(err => {
+      logger.warn(`${city.cityName} load fail.`)
+
+      return {
+        success: false,
+        message: err
+      }
+    })
+
+}
+
+// run
+const run = async() => {
+
+  // 初始化
+  await init()
+
+  // 查询省市
+  let provinces = await loadAddresses()
+
+  // 查询上次保存的省市信息
+  let tmpInfo
+  try {
+    tmpInfo = await resume()
+  } catch(err) {
+    tmpInfo = {provinceName: provinces[0].provinceName, cityName: provinces[0].cities[0].cityName}
+  }
+  logger.info(`last reptile ${tmpInfo.provinceName}/${tmpInfo.cityName}`)
+
+  let canHanle = false
+
   outer:
   for(let i = 0; i < provinces.length; i++) {
-    let provinceName = provinces[i].provinceName
-    let cities = provinces[i].cities
+    let province = provinces[i]
+    let cities = province.cities
 
-    console.log(`\n`)
-    console.log(`console.log('${provinceName}')`)
-
-    // city
-    for(j = 0; j < cities.length; j++) {
-      index++
-
-      // from
-      if(index < start) {
-        continue
-      }
-
-      // to
-      if(index > end) {
-        break outer
-      }
-
-      console.log(`console.log(\`start: ${start}, len: ${++len}\`)`)
-
-      let cityName = cities[j].cityName
-      let cityUrl = cities[j].url
-      console.log(`await handle('${countryName}', '${provinceName}', '${cityName}', '${cityUrl}')`)
-      
-      
-
+    // 还没有找到符合的省份
+    if(!canHanle && province.provinceName != tmpInfo.provinceName) {
+      continue
     }
 
-    
-    
+    for(let j = 0; j < cities.length; j++) {
+      let city = cities[j]
+      if(!canHanle && city.cityName != tmpInfo.cityName) {
+        continue
+      }
+      canHanle = true
+
+      // handle
+      let handleResult = await handle(province.provinceName, city)
+      if(!handleResult.success) {
+        logger.log(handleResult.message)
+        pause(province.provinceName, city.cityName, handleResult.message)
+        break outer
+      }
+      
+    }
+
   }
-
-  console.log(`\nconsole.log('end.')`)
-  console.log(`\n\n}\n\n`)
-  console.log(`main()`)
-  console.log(`\n\n`)
-
-})
+  logger.info('end.........')
+}
 
 
+// pause('山东', '青岛市')
+// resume().then(console.log)
+
+logger.init(logger.config.INFO)
+parser.init(2000)
+run()

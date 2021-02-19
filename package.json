@@ -10,7 +10,8 @@
     "iconv-lite": "^0.6.2",
     "lodash": "^4.17.20",
     "mysql": "^2.18.1",
-    "request": "^2.88.2"
+    "request": "^2.88.2",
+    "silly-datetime": "^0.1.2"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

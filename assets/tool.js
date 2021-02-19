@@ -57,9 +57,41 @@ const rightPad = function(str, len, padding) {
   return result
 }
 
+/**
+ * 重试
+ * @param fn 执行函数
+ * @param arguments 参数
+ */
+const retry = async(fn, args) => {
+
+  let remainCount = 5
+  let result
+  while(true) {
+
+    // 重试次数减少
+    remainCount--
+
+    try{
+      result = await fn(...args)
+      return Promise.resolve(result)
+    } catch(err) {
+      if(remainCount == 0) {
+        return Promise.reject(err)  
+      }
+
+      continue
+    }
+
+    // end try catch
+  }
+
+  // end
+}
+
 module.exports = {
   sleep: sleep,
   leftPad: leftPad,
-  rightPad: rightPad
+  rightPad: rightPad,
+  retry: retry
 }
 

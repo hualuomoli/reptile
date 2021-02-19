@@ -20,12 +20,16 @@ const run = async() => {
 
   curl.init(cookie)
   http.init(cookie)
+  parser.init(1000)
 
   // load by url
-  await parser.loadByUrl('http://ip.yqie.com/cn/shandong/qingdao/').then(datas => console.log(toString(datas)))
+  // await parser.loadByUrl('http://ip.yqie.com/cn/shandong/qingdao/').then(result => console.log(`done: ${result.done}, datas: ${toString(result.datas)}`)).catch(console.error)
 
   // load by name
-  await parser.loadByName('青岛市').then(datas => console.log(toString(datas)))
+  // await parser.loadByName('青岛市').then(result => console.log(`done: ${result.done}, datas: ${toString(result.datas)}`)).catch(console.error)
+
+  // load by url or name
+  await parser.load('青岛市', 'http://ip.yqie.com/cn/shandong/qingdao/').then(datas => console.log(`datas: ${toString(datas)}`)).catch(console.error)
 
 }
 
